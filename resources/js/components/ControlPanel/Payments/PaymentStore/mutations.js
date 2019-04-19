@@ -1,15 +1,15 @@
-// set all childrens to the allchildrens Array
-export const set_all_childrens = (state, childrens) => {
-    return state.allChildrens = childrens
+// set all payments to the allpayments Array
+export const set_all_payments = (state, payments) => {
+    return state.allPayments = payments
 }
 
-// set update children to form
-export const set_update_children_to_form = (state, children) => {
-    return state.editChildren = children
+// set update payment to form
+export const set_update_payment_to_form = (state, payment) => {
+    return state.editPayment = payment
 }
 
-// set active children information
-export const set_active_children = (state, children) => {
-    //console.log(state.allchildrens.find( item => item.id === children.id ) )
-    return state.activeChildren = children
+// set active payment information
+export const set_active_payment = (state, payment) => {
+    //console.log(state.allpayments.find( item => item.id === payment.id ) )
+    return state.activePayment = payment
 }

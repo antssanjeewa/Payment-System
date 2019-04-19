@@ -1,41 +1,40 @@
-// get all payments in database
-export const set_payments = ({commit}) => {
+// get all stations in database
+export const set_stations = ({commit}) => {
     return new Promise((resolve, reject) => {
-        axios.get('api/payments').then(response => {
+        axios.get('api/stations').then(response => {
             // http success, call the mutator and change something in state
-            commit('set_all_payments', response.data.data)
+            commit('set_all_stations', response.data.data)
             resolve(response);  // Let the calling function know that http is done. You may send some data back
         }, error => {
             console.log(error.response)
             // http failed, let the calling function know that action did not work out
             reject(error);
-            console.log("kkk")
         })
     })
 }
 
-// add new payment to the database
-export const add_new_payment = ({dispatch}, payment) => {
-    return axios.post('api/payments',payment) .then( response => {
+// add new station to the database
+export const add_new_station = ({dispatch}, station) => {
+    return axios.post('api/stations',station) .then( response => {
             dispatch('set_message',{message:response.data.message, type:'success'},{root:true})
-            dispatch('set_payments')
+            dispatch('set_stations')
         }).catch(error => {
-            dispatch('set_message',{message:error.response.data.message, type:'error'},{root:true})
+           dispatch('set_message',{message:error.response.data.message, type:'error'},{root:true})
         });
 }
 
-// set edit payment array
-export const set_edit_payment = ({commit}, payment={}) => {
+// set edit station array
+export const set_edit_station = ({commit}, station={}) => {
 
-    return commit('set_update_payment_to_form',payment)
+    return commit('set_update_station_to_form',station)
 }
 
-// update existing payment in database
-export const update_payment = ({dispatch}, payment) => {
+// update existing station in database
+export const update_station = ({dispatch}, station) => {
     return new Promise((resolve, reject) => {
-        axios.post('api/payments/update',payment).then(response => {
+        axios.post('api/stations/update',station).then(response => {
             // http success, call the mutator and change something in state
-            dispatch('set_payments')
+            dispatch('set_stations')
             dispatch('set_message',{message:response.data.message, type:'success'},{root:true})
             resolve(response);  // Let the calling function know that http is done. You may send some data back
         }, error => {
@@ -46,12 +45,12 @@ export const update_payment = ({dispatch}, payment) => {
     })
 }
 
-// set payment details
-export const set_payment_details = ({commit}, id) => {
+// set station details
+export const set_station_details = ({commit}, id) => {
     return new Promise((resolve, reject) => {
-        axios.get('api/payments/'+id).then(response => {
+        axios.get('api/stations/'+id).then(response => {
             // http success, call the mutator and change something in state
-            commit('set_active_payment',response.data.payment)
+            commit('set_active_station',response.data.station)
             resolve(response);  // Let the calling function know that http is done. You may send some data back
         }, error => {
             // http failed, let the calling function know that action did not work out

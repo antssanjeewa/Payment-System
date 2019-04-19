@@ -1,6 +1,6 @@
 export default {
 
-    allChildrens: [],
-    editChildren : {},
-    activeChildren : {}
+    allPayments: [],
+    editPayment : {},
+    activePayment : {}
 }

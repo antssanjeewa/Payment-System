@@ -23,7 +23,7 @@
     </v-btn>
 
     <!-- snackbar for show message -->
-    <!-- <v-snackbar 
+    <v-snackbar 
         v-model="snackbar" 
         :timeout= "4000" 
         :top= "true" 
@@ -34,7 +34,7 @@
     <v-btn color="white" flat @click="snackbar = false" >
         <v-icon>close</v-icon>
     </v-btn>
-    </v-snackbar> -->
+    </v-snackbar>
 </v-app>
 </template>
 
@@ -55,18 +55,17 @@ export default {
     },
     watch : {
     // Check Snackbar message Value
-        // message (val) {
-        // this.snackbar = true
-        // // console.log("watch message->  "+val.message+" "+val.type)
-        // }
+        message (val) {
+            this.snackbar = true
+        }
     },
     computed : {
-        // ...mapGetters({
-        // // Get message for Snackbar
-        // message : 'getMessage',
-        // // Get Theme Data
-        // theme : 'getTheme'
-        // })
+        ...mapGetters({
+        // Get message for Snackbar
+        message : 'getMessage',
+        // Get Theme Data
+        theme : 'getTheme'
+        })
     },
     methods: {
         // ...mapActions({
@@ -79,8 +78,8 @@ export default {
         // }),
         // When click Add User Button in Bottom
         addNewUser(){
-        this.addUser()
-        this.toggleForm('user')
+            this.addUser()
+            this.toggleForm()
         }
     }
 }

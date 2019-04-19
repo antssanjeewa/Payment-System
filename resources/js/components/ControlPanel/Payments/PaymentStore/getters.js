@@ -1,11 +1,11 @@
 import state from "./state";
 
-// get all childrens array
-export const getAllChildrens = (state) => {
-    return state.allChildrens
+// get all payments array
+export const getAllPayments = (state) => {
+    return state.allPayments
 }
 
-// get edit children
-export const getEditChildren = (state) => {
-    return state.editChildren
+// get edit payment
+export const getEditPayment = (state) => {
+    return state.editPayment
 }

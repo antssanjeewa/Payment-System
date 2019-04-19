@@ -8,7 +8,8 @@ import * as mutations from './mutations'
 import * as actions from './actions'
 import * as getters from './getters' 
 
-import children from '../components/ControlPanel/Childrens/ChildStore'
+import payment from '../components/ControlPanel/Payments/PaymentStore'
+import station from '../components/ControlPanel/Stations/StationStore'
 
 
 export default new Vuex.Store({
@@ -17,6 +18,7 @@ export default new Vuex.Store({
     mutations,
     actions,
     modules : {
-        children
+        payment,
+        station
     }
 });

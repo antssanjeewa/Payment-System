@@ -80,28 +80,8 @@
             drawer:true,
             items: [
             { icon: 'dashboard', text: 'Dashboard', link:'/'},
-            { icon: 'folder', text: 'Attendent Mark', link:'/attend/add' },
-            { icon: 'person', text: 'Add Marks', link:'/childs' },   
-            { icon: 'keyboard_arrow_up',
-              'icon-alt': 'keyboard_arrow_down',
-              text: 'Childrens',
-              model: true,
-              children: [
-                { icon: 'how_to_vote', text: 'Child List', link:'/childs' },   
-                { icon: 'account_balance', text: 'Child Register', link:'/childs/add'},
-                
-              ]
-            },
-    
-            { icon: 'keyboard_arrow_up',
-              'icon-alt': 'keyboard_arrow_down',
-              text: 'Teachers',
-              model: false,
-              children: [
-                { icon: 'settings_input_antenna', text: 'Teacher List', link:'/smn_broadcastings'},
-                { icon: 'settings_input_antenna', text: 'Teacher Add', link:'/standing_orders'},
-              ]
-            },
+            { icon: 'person', text: 'Payment', link:'/payments' },   
+            { icon: 'folder', text: 'Stations', link:'/stations' },
             { icon: 'keyboard_arrow_up',
               'icon-alt': 'keyboard_arrow_down',
               text: 'Other',
