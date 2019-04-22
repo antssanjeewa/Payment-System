@@ -1,3 +1,7 @@
+export const set_toggle_form = (state) => {
+    return state.dialog = !state.dialog
+}
+
 // set all payments to the allpayments Array
 export const set_all_payments = (state, payments) => {
     return state.allPayments = payments

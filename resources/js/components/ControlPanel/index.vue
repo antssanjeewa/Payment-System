@@ -68,17 +68,16 @@ export default {
         })
     },
     methods: {
-        // ...mapActions({
-        // // toggle User dialog form to Show / Hide
-        // toggleForm : 'dashboard/set_toggle_form',
-        // // Set editUser in State
-        // addUser : 'user/set_edit_user',
-        // // toggle Navigation Bar to Show & Hide
-        // toggleNavbar: 'dashboard/set_toggle_navbar'
-        // }),
+        ...mapActions({
+        // toggle User dialog form to Show / Hide
+        toggleForm : 'payment/set_toggle_form',
+        // Set editUser in State
+        addUser : 'user/set_edit_user',
+        // toggle Navigation Bar to Show & Hide
+        toggleNavbar: 'dashboard/set_toggle_navbar'
+        }),
         // When click Add User Button in Bottom
         addNewUser(){
-            this.addUser()
             this.toggleForm()
         }
     }

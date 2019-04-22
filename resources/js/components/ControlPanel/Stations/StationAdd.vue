@@ -7,14 +7,15 @@
                 <v-spacer></v-spacer>
   
                 <!-- top add person icon -->
-                <v-tooltip bottom>
+                <v-icon large>settings_input_antenna</v-icon>
+                <!-- <v-tooltip bottom>
                   <template v-slot:activator="{ on }">
                     <v-btn icon large target="_blank" v-on="on" @click="clear">
-                      <v-icon large>account_balance</v-icon>
+                      
                     </v-btn>
                   </template>
                   <span>Add New Station</span>
-                </v-tooltip>
+                </v-tooltip> -->
   
                 <!-- Close Button Top -->
                 <v-btn icon dark @click="cancel">
@@ -34,7 +35,7 @@
                           <v-text-field
                             type="text"
                             name="name"
-                            prepend-icon="account_balance"
+                            prepend-icon="settings_input_antenna"
                             label="Station Name"
                             :rules="rules.required"
                             v-model="station.name"
@@ -44,22 +45,11 @@
                         <v-flex xs12>
                           <v-text-field
                             type="text"
-                            name="branch"
+                            name="address"
                             prepend-icon="domain"
-                            label="Branch"
+                            label="Address"
                             :rules="rules.required"
-                            v-model="station.branch"
-                          ></v-text-field>
-                        </v-flex>
-                      <!-- Station Account Number Field -->
-                        <v-flex xs12>
-                          <v-text-field
-                            type="tel"
-                            name="acc_number"
-                            prepend-icon="subtitles"
-                            label="Acc: Number"
-                            :rules="rules.required"
-                            v-model="station.acc_number"
+                            v-model="station.address"
                           ></v-text-field>
                         </v-flex>
                       </v-layout>
@@ -69,38 +59,16 @@
                     <v-flex xs12 v-if="expand">
                       <v-layout row wrap>
                         <v-flex xs12>
-                          <v-subheader>Other Information</v-subheader>
-                          <v-divider></v-divider>
-                        </v-flex>
-                        <v-flex xs12 align-center justify-space-between>
-                          <v-flex xs12>
-                            <v-text-field 
-                              name="info01" 
-                              label="Info01" 
+                            <v-textarea 
+                              name="desc" 
+                              label="Description" 
                               type="text"
                             >
-                            </v-text-field>
+                            </v-textarea>
                           </v-flex>
-                          <v-flex xs12>
-                            <v-text-field 
-                              name="info02" 
-                              label="info02" 
-                              type="text"
-                            >
-                            </v-text-field>
-                          </v-flex>
-                        </v-flex>
-                        <v-flex xs12>
-                          <v-text-field
-                            type="tel"
-                            prepend-icon="smartphone"
-                            label="info03"
-                          ></v-text-field>
-                        </v-flex>
                       </v-layout>
                     </v-flex>
                 </v-form>
-                  <!-- </v-container> -->
             </v-card-text>
             <v-divider></v-divider>
   
@@ -124,7 +92,7 @@
               valid : false,
               expand : false,
               // Customized Dialog Form Width
-              formwidth : '900px',
+              formwidth : '500px',
               // Validation Rules for Form
               rules : {
                 required : [
@@ -134,8 +102,7 @@
               // Default Station Object
               station : {
                 name : '',
-                branch : '',
-                acc_number : ''
+                address : ''
               }
           }
       },
@@ -149,13 +116,13 @@
       computed:{
         // Change Form Title When Edit & Add New
           formTitle () {
-            return this.station.name ? 'Edit' : 'Add New'
+            return this.station.id ? 'Edit' : 'Add New'
           },
           ...mapGetters({
             // Get Dialog Visibility Value
-            dialog : 'dashboard/getStationForm',
+            dialog : 'station/getStationForm',
             // Get Edit station Details
-            editstation : 'dashboard/getEditItem'
+            editstation : 'station/getEditStation'
           }),
         // Expand Button Name Change
           expandText () {
@@ -165,11 +132,11 @@
       methods:{
         ...mapActions({
           // Toggle Dialog Form to Show/ Hide
-            toggleForm : 'dashboard/set_toggle_form',
+            toggleForm : 'station/set_toggle_form',
           // Add new Station to database
             addStation : 'station/add_new_station',
           // Update Item Change in State
-            updateItem : 'dashboard/set_edit_item',
+            updateItem : 'station/set_edit_station',
           }),
   
           // form identify is this 'new station' or 'update station'
@@ -183,15 +150,14 @@
           },
           // when cancel button click Form is close
           cancel(){
-            this.toggleForm('station')
+            this.toggleForm()
             setTimeout(() => this.clear(), 500);
           },
           // Clear the Form field's
           clear(){
             this.station = { 
                 name : '',
-                brach : '',
-                acc_number : ''
+                address : ''
             }
             this.updateItem(this.station)
             this.$refs.form.resetValidation()
@@ -203,14 +169,14 @@
               // update exist station
               if(this.station.id){
                 this.$store.dispatch("station/update_station",this.station).then(response => {
-                  this.toggleForm('station')
+                  this.toggleForm()
                   setTimeout(() => this.clear(), 500);
                 }, error => {})
               
               // add new station
               }else{
                 this.addStation(this.station).then(responce =>{
-                    this.toggleForm('station')
+                    this.toggleForm()
                     setTimeout(() => this.clear(), 500);
                 }, error => {}) 
               }

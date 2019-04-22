@@ -10,7 +10,7 @@
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <v-btn icon large target="_blank" v-on="on" @click="clear">
-                  <v-icon large>account_balance</v-icon>
+                  <v-icon large>monetization_on</v-icon>
                 </v-btn>
               </template>
               <span>Add New payment</span>
@@ -32,35 +32,26 @@
                   <!-- payment Name Field -->
                     <v-flex xs12>
                       <v-text-field
+                        prefix="Rs:"
                         type="text"
-                        name="name"
-                        prepend-icon="account_balance"
-                        label="payment Name"
+                        name="amount"
+                        prepend-icon="monetization_on"
+                        label="payment Amount"
                         :rules="rules.required"
-                        v-model="payment.name"
+                        v-model="payment.amount"
                       ></v-text-field>
                     </v-flex>
                   <!-- payment Branch Field -->
                     <v-flex xs12>
-                      <v-text-field
-                        type="text"
-                        name="branch"
-                        prepend-icon="domain"
-                        label="Branch"
+                      <v-select
+                        prepend-icon="settings_input_antenna"
+                        label="Station"
+                        :items="allStations"
+                        item-text="name"
+                        item-value="id"
                         :rules="rules.required"
-                        v-model="payment.branch"
-                      ></v-text-field>
-                    </v-flex>
-                  <!-- payment Account Number Field -->
-                    <v-flex xs12>
-                      <v-text-field
-                        type="tel"
-                        name="acc_number"
-                        prepend-icon="subtitles"
-                        label="Acc: Number"
-                        :rules="rules.required"
-                        v-model="payment.acc_number"
-                      ></v-text-field>
+                        v-model="payment.station_id"
+                      ></v-select>
                     </v-flex>
                   </v-layout>
                 </v-flex>
@@ -69,33 +60,11 @@
                 <v-flex xs12 v-if="expand">
                   <v-layout row wrap>
                     <v-flex xs12>
-                      <v-subheader>Other Information</v-subheader>
-                      <v-divider></v-divider>
-                    </v-flex>
-                    <v-flex xs12 align-center justify-space-between>
-                      <v-flex xs12>
-                        <v-text-field 
-                          name="info01" 
-                          label="Info01" 
-                          type="text"
-                        >
-                        </v-text-field>
-                      </v-flex>
-                      <v-flex xs12>
-                        <v-text-field 
-                          name="info02" 
-                          label="info02" 
-                          type="text"
-                        >
-                        </v-text-field>
-                      </v-flex>
-                    </v-flex>
-                    <v-flex xs12>
-                      <v-text-field
-                        type="tel"
+                      <v-textarea
+                        type="text"
                         prepend-icon="smartphone"
-                        label="info03"
-                      ></v-text-field>
+                        label="Description"
+                      ></v-textarea>
                     </v-flex>
                   </v-layout>
                 </v-flex>
@@ -124,7 +93,7 @@ export default {
           valid : false,
           expand : false,
           // Customized Dialog Form Width
-          formwidth : '900px',
+          formwidth : '500px',
           // Validation Rules for Form
           rules : {
             required : [
@@ -133,9 +102,8 @@ export default {
           },
           // Default payment Object
           payment : {
-            name : '',
-            branch : '',
-            acc_number : ''
+            amount : '',
+            station_id : ''
           }
       }
   },
@@ -149,13 +117,14 @@ export default {
   computed:{
     // Change Form Title When Edit & Add New
       formTitle () {
-        return this.payment.name ? 'Edit' : 'Add New'
+        return this.payment.id ? 'Edit' : 'Add New'
       },
       ...mapGetters({
         // Get Dialog Visibility Value
-        dialog : 'dashboard/getpaymentForm',
+        dialog : 'payment/getPaymentForm',
         // Get Edit payment Details
-        editpayment : 'dashboard/getEditItem'
+        editpayment : 'payment/getEditPayment',
+        allStations : 'station/getAllStations'
       }),
     // Expand Button Name Change
       expandText () {
@@ -165,11 +134,11 @@ export default {
   methods:{
     ...mapActions({
       // Toggle Dialog Form to Show/ Hide
-        toggleForm : 'dashboard/set_toggle_form',
+        toggleForm : 'payment/set_toggle_form',
       // Add new payment to database
         addpayment : 'payment/add_new_payment',
       // Update Item Change in State
-        updateItem : 'dashboard/set_edit_item',
+        updateItem : 'payment/set_edit_payment',
       }),
 
       // form identify is this 'new payment' or 'update payment'
@@ -183,15 +152,14 @@ export default {
       },
       // when cancel button click Form is close
       cancel(){
-        this.toggleForm('payment')
+        this.toggleForm()
         setTimeout(() => this.clear(), 500);
       },
       // Clear the Form field's
       clear(){
         this.payment = { 
-            name : '',
-            brach : '',
-            acc_number : ''
+            amount : '',
+            station_id : ''
         }
         this.updateItem(this.payment)
         this.$refs.form.resetValidation()
@@ -203,14 +171,14 @@ export default {
           // update exist payment
           if(this.payment.id){
             this.$store.dispatch("payment/update_payment",this.payment).then(response => {
-              this.toggleForm('payment')
+              this.toggleForm()
               setTimeout(() => this.clear(), 500);
             }, error => {})
           
           // add new payment
           }else{
             this.addpayment(this.payment).then(responce =>{
-                this.toggleForm('payment')
+                this.toggleForm()
                 setTimeout(() => this.clear(), 500);
             }, error => {}) 
           }

@@ -17,17 +17,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('childrens', 'ChildrenController', ['except' => ['update']]);
-Route::post('childrens/update','ChildrenController@update');
+Route::apiResource('payments', 'PaymentController', ['except' => ['update']]);
+Route::post('payments/update','PaymentController@update');
 
-Route::apiResource('teachers', 'TeacherController', ['except' => ['update']]);
-Route::post('teachers/update','TeacherController@update');
-
-Route::apiResource('subjects', 'SubjectController', ['except' => ['update']]);
-Route::post('subjects/update','SubjectController@update');
-
-Route::apiResource('class_rooms', 'ClassRoomController', ['except' => ['update']]);
-Route::post('class_rooms/update','ClassRoomController@update');
-
-Route::apiResource('attend_date', 'AttendDateController', ['except' => ['update']]);
-Route::post('attend_date/update','AttendDateController@update');
+Route::apiResource('stations', 'StationController', ['except' => ['update']]);
+Route::post('stations/update','StationController@update');

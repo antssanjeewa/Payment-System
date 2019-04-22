@@ -1,3 +1,8 @@
+// set dialog value
+export const set_toggle_form = ({commit}) => {
+    return commit('set_toggle_form')
+}
+
 // get all stations in database
 export const set_stations = ({commit}) => {
     return new Promise((resolve, reject) => {
@@ -25,7 +30,6 @@ export const add_new_station = ({dispatch}, station) => {
 
 // set edit station array
 export const set_edit_station = ({commit}, station={}) => {
-
     return commit('set_update_station_to_form',station)
 }
 
@@ -51,6 +55,22 @@ export const set_station_details = ({commit}, id) => {
         axios.get('api/stations/'+id).then(response => {
             // http success, call the mutator and change something in state
             commit('set_active_station',response.data.station)
+            resolve(response);  // Let the calling function know that http is done. You may send some data back
+        }, error => {
+            // http failed, let the calling function know that action did not work out
+            dispatch('set_message',{message:error.response.data.message, type:'error'},{root:true})
+            reject(error);
+        })
+    })
+}
+
+// delete station to the database
+export const delete_stations = ({dispatch}, id) => {
+    return new Promise((resolve, reject) => {
+        axios.delete(`api/stations/${id}`).then(response => {
+            // http success, call the get all data and change something in station
+            dispatch('set_stations')
+            dispatch('set_message',{message:response.data.message, type:'success'},{root:true})
             resolve(response);  // Let the calling function know that http is done. You may send some data back
         }, error => {
             // http failed, let the calling function know that action did not work out

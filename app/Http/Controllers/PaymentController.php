@@ -14,17 +14,8 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $payment =  Payment::all();
+        return response()->json(['data'=>$payment],200);
     }
 
     /**
@@ -35,51 +26,71 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try{
+            $data = $this->validate(request(), [
+                'amount' => 'required|string|max:50',
+                'station_id' => 'required'
+            ]);
+            // move_uploaded_file($_FILES['fileField']['tmp_name'],"../inventory_images/$newname");
+           Payment::create($data);
+            return response()->json(["message"=>"Add Payment successfuly","responce"=>$data],201);
+        }catch(Exception $e){
+            return response()->json(["message"=>"Somthing want to wrong on the server."],  $e->getCode());
+        }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Model\Payment  $payment
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Payment $payment)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Model\Payment  $payment
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Payment $payment)
-    {
-        //
+        return Payment::find($id);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Model\Payment  $payment
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Payment $payment)
+    public function update(Request $request)
     {
-        //
+        try{
+            $item = Payment::find($request->id);
+            if(!$item){
+                return response()->json(['message'=>"Payment Not Found.."],404);
+            }
+            $data = $this->validate(request(), [
+                'amount' => 'required|string|max:50',
+                'station_id' => 'required'
+            ]);
+            
+            $item->update($data);
+            return response()->json(["message"=>"Add Payment successfuly","responce"=>$data],201);
+        }catch(Exception $e){
+            return response()->json(["message"=>"Somthing want to wrong on the server."],  $e->getCode());
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Model\Payment  $payment
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Payment $payment)
+    public function destroy($id)
     {
-        //
+        $item = Payment::find($id);
+
+        if(!$item){
+            return response()->json(['message'=>"user Not Found.."],404);
+        }
+        $item->delete();
+        return response()->json(['message'=>"Successfully Deleted..."],200);
     }
 }
+

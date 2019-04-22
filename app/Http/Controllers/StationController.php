@@ -14,17 +14,8 @@ class StationController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $Station =  Station::all();
+        return response()->json(['data'=>$Station],200);
     }
 
     /**
@@ -35,51 +26,71 @@ class StationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try{
+            $data = $this->validate(request(), [
+                'name' => 'required|string|max:50',
+                'address' => 'required'
+            ]);
+            
+           Station::create($data);
+            return response()->json(["message"=>"Add Station successfuly","responce"=>$data],201);
+        }catch(Exception $e){
+            return response()->json(["message"=>"Somthing want to wrong on the server."],  $e->getCode());
+        }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Model\Station  $station
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Station $station)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Model\Station  $station
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Station $station)
-    {
-        //
+        return Station::find($id);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Model\Station  $station
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Station $station)
+    public function update(Request $request)
     {
-        //
+        try{
+            $item = Station::find($request->id);
+            if(!$item){
+                return response()->json(['message'=>"Station Not Found.."],404);
+            }
+            $data = $this->validate(request(), [
+                'name' => 'required|string|max:50',
+                'address' => 'required'
+            ]);
+            
+            $item->update($data);
+            return response()->json(["message"=>"Add Station successfuly","responce"=>$data],201);
+        }catch(Exception $e){
+            return response()->json(["message"=>"Somthing want to wrong on the server."],  $e->getCode());
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Model\Station  $station
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Station $station)
+    public function destroy($id)
     {
-        //
+        $item = Station::find($id);
+
+        if(!$item){
+            return response()->json(['message'=>"user Not Found.."],404);
+        }
+        $item->delete();
+        return response()->json(['message'=>"Successfully Deleted..."],200);
     }
 }
+

@@ -1849,11 +1849,11 @@ __webpack_require__.r(__webpack_exports__);
         text: 'Dashboard',
         link: '/'
       }, {
-        icon: 'person',
+        icon: 'monetization_on',
         text: 'Payment',
         link: '/payments'
       }, {
-        icon: 'folder',
+        icon: 'settings_input_antenna',
         text: 'Stations',
         link: '/stations'
       }, {
@@ -2137,37 +2137,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -2175,7 +2144,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       valid: false,
       expand: false,
       // Customized Dialog Form Width
-      formwidth: '900px',
+      formwidth: '500px',
       // Validation Rules for Form
       rules: {
         required: [function (v) {
@@ -2184,9 +2153,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       },
       // Default payment Object
       payment: {
-        name: '',
-        branch: '',
-        acc_number: ''
+        amount: '',
+        station_id: ''
       }
     };
   },
@@ -2199,13 +2167,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   computed: _objectSpread({
     // Change Form Title When Edit & Add New
     formTitle: function formTitle() {
-      return this.payment.name ? 'Edit' : 'Add New';
+      return this.payment.id ? 'Edit' : 'Add New';
     }
   }, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
     // Get Dialog Visibility Value
-    dialog: 'dashboard/getpaymentForm',
+    dialog: 'payment/getPaymentForm',
     // Get Edit payment Details
-    editpayment: 'dashboard/getEditItem'
+    editpayment: 'payment/getEditPayment',
+    allStations: 'station/getAllStations'
   }), {
     // Expand Button Name Change
     expandText: function expandText() {
@@ -2214,11 +2183,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }),
   methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])({
     // Toggle Dialog Form to Show/ Hide
-    toggleForm: 'dashboard/set_toggle_form',
+    toggleForm: 'payment/set_toggle_form',
     // Add new payment to database
     addpayment: 'payment/add_new_payment',
     // Update Item Change in State
-    updateItem: 'dashboard/set_edit_item'
+    updateItem: 'payment/set_edit_payment'
   }), {
     // form identify is this 'new payment' or 'update payment'
     paymentChange: function paymentChange() {
@@ -2232,7 +2201,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     cancel: function cancel() {
       var _this = this;
 
-      this.toggleForm('payment');
+      this.toggleForm();
       setTimeout(function () {
         return _this.clear();
       }, 500);
@@ -2240,9 +2209,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     // Clear the Form field's
     clear: function clear() {
       this.payment = {
-        name: '',
-        brach: '',
-        acc_number: ''
+        amount: '',
+        station_id: ''
       };
       this.updateItem(this.payment);
       this.$refs.form.resetValidation();
@@ -2255,7 +2223,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // update exist payment
         if (this.payment.id) {
           this.$store.dispatch("payment/update_payment", this.payment).then(function (response) {
-            _this2.toggleForm('payment');
+            _this2.toggleForm();
 
             setTimeout(function () {
               return _this2.clear();
@@ -2263,7 +2231,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           }, function (error) {}); // add new payment
         } else {
           this.addpayment(this.payment).then(function (responce) {
-            _this2.toggleForm('payment');
+            _this2.toggleForm();
 
             setTimeout(function () {
               return _this2.clear();
@@ -2375,6 +2343,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -2393,24 +2363,32 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       //allUsers: [],
       search: '',
       headers: [{
-        text: 'Ref.ID',
+        text: 'ID',
         width: '1%',
         value: 'id'
       }, {
-        text: 'Name',
-        value: 'name'
+        text: 'Amount',
+        value: 'amount'
       }, {
-        text: 'Mobile',
-        value: 'mobile01'
+        text: 'Station',
+        value: 'station_id'
       }, {
-        text: 'Email',
-        value: 'email'
+        text: 'Date',
+        value: 'created_at'
       }, {
-        text: 'NIC',
-        value: 'nic'
+        text: 'View',
+        width: '1%',
+        value: 'view',
+        sortable: false
       }, {
-        text: 'Actions',
-        value: 'name',
+        text: 'Edit',
+        width: '1%',
+        value: 'edit',
+        sortable: false
+      }, {
+        text: 'Delete',
+        width: '1%',
+        value: 'delete',
         sortable: false
       }]
     };
@@ -2420,15 +2398,36 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   })),
   created: function created() {
     // when table is preview, load the all payments from database
-    this.$store.dispatch("payment/set_payments").then(function (response) {
-      console.log(response);
+    this.$store.dispatch("payment/set_payments").then(function (response) {// console.log(response)
+    }, function (error) {
+      // Get some error
+      console.error(error);
+    }), this.$store.dispatch("station/set_stations").then(function (response) {// console.log(response)
     }, function (error) {
       // Get some error
       console.error(error);
     });
   },
-  methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])({// addpayment : 'payment/add_new_payment',
-  }))
+  methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])({
+    // addpayment : 'payment/add_new_payment',
+    // Toggle Dialog Form to Show/ Hide
+    toggleForm: 'payment/set_toggle_form',
+    updateItem: 'payment/set_edit_payment'
+  }), {
+    editItem: function editItem(item) {
+      this.updateItem(item);
+      this.toggleForm();
+    },
+    deleteItem: function deleteItem(item) {
+      var _this = this;
+
+      confirm('Are you sure you want to delete this item?') && this.$store.dispatch("payment/delete_payments", item.id).then(function (response) {
+        var index = _this.allPayments.indexOf(item);
+
+        _this.allPayments.splice(index, 1);
+      }, function (error) {});
+    }
+  })
 });
 
 /***/ }),
@@ -2563,38 +2562,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -2602,7 +2569,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       valid: false,
       expand: false,
       // Customized Dialog Form Width
-      formwidth: '900px',
+      formwidth: '500px',
       // Validation Rules for Form
       rules: {
         required: [function (v) {
@@ -2612,8 +2579,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       // Default Station Object
       station: {
         name: '',
-        branch: '',
-        acc_number: ''
+        address: ''
       }
     };
   },
@@ -2626,13 +2592,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   computed: _objectSpread({
     // Change Form Title When Edit & Add New
     formTitle: function formTitle() {
-      return this.station.name ? 'Edit' : 'Add New';
+      return this.station.id ? 'Edit' : 'Add New';
     }
   }, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapGetters"])({
     // Get Dialog Visibility Value
-    dialog: 'dashboard/getStationForm',
+    dialog: 'station/getStationForm',
     // Get Edit station Details
-    editstation: 'dashboard/getEditItem'
+    editstation: 'station/getEditStation'
   }), {
     // Expand Button Name Change
     expandText: function expandText() {
@@ -2641,11 +2607,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   }),
   methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])({
     // Toggle Dialog Form to Show/ Hide
-    toggleForm: 'dashboard/set_toggle_form',
+    toggleForm: 'station/set_toggle_form',
     // Add new Station to database
     addStation: 'station/add_new_station',
     // Update Item Change in State
-    updateItem: 'dashboard/set_edit_item'
+    updateItem: 'station/set_edit_station'
   }), {
     // form identify is this 'new station' or 'update station'
     stationChange: function stationChange() {
@@ -2659,7 +2625,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     cancel: function cancel() {
       var _this = this;
 
-      this.toggleForm('station');
+      this.toggleForm();
       setTimeout(function () {
         return _this.clear();
       }, 500);
@@ -2668,8 +2634,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     clear: function clear() {
       this.station = {
         name: '',
-        brach: '',
-        acc_number: ''
+        address: ''
       };
       this.updateItem(this.station);
       this.$refs.form.resetValidation();
@@ -2682,7 +2647,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // update exist station
         if (this.station.id) {
           this.$store.dispatch("station/update_station", this.station).then(function (response) {
-            _this2.toggleForm('station');
+            _this2.toggleForm();
 
             setTimeout(function () {
               return _this2.clear();
@@ -2690,7 +2655,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           }, function (error) {}); // add new station
         } else {
           this.addStation(this.station).then(function (responce) {
-            _this2.toggleForm('station');
+            _this2.toggleForm();
 
             setTimeout(function () {
               return _this2.clear();
@@ -2802,6 +2767,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -2820,24 +2786,29 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       //allUsers: [],
       search: '',
       headers: [{
-        text: 'Ref.ID',
+        text: 'ID',
         width: '1%',
         value: 'id'
       }, {
         text: 'Name',
         value: 'name'
       }, {
-        text: 'Mobile',
-        value: 'mobile01'
+        text: 'Address',
+        value: 'address'
       }, {
-        text: 'Email',
-        value: 'email'
+        text: 'View',
+        width: '1%',
+        value: 'view',
+        sortable: false
       }, {
-        text: 'NIC',
-        value: 'nic'
+        text: 'Edit',
+        width: '1%',
+        value: 'edit',
+        sortable: false
       }, {
-        text: 'Actions',
-        value: 'name',
+        text: 'Delete',
+        width: '1%',
+        value: 'delete',
         sortable: false
       }]
     };
@@ -2847,15 +2818,32 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   })),
   created: function created() {
     // when table is preview, load the all stations from database
-    this.$store.dispatch("station/set_stations").then(function (response) {
-      console.log(response);
+    this.$store.dispatch("station/set_stations").then(function (response) {// console.log(response)
     }, function (error) {
       // Get some error
       console.error(error);
     });
   },
-  methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])({// addstation : 'station/add_new_station',
-  }))
+  methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])({
+    // addstation : 'station/add_new_station',
+    // Toggle Dialog Form to Show/ Hide
+    toggleForm: 'station/set_toggle_form',
+    updateItem: 'station/set_edit_station'
+  }), {
+    editItem: function editItem(item) {
+      this.updateItem(item);
+      this.toggleForm();
+    },
+    deleteItem: function deleteItem(item) {
+      var _this = this;
+
+      confirm('Are you sure you want to delete this item?') && this.$store.dispatch("station/delete_stations", item.id).then(function (response) {
+        var index = _this.allStations.indexOf(item);
+
+        _this.allStations.splice(index, 1);
+      }, function (error) {});
+    }
+  })
 });
 
 /***/ }),
@@ -2974,21 +2962,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     // Get Theme Data
     theme: 'getTheme'
   })),
-  methods: {
-    // ...mapActions({
-    // // toggle User dialog form to Show / Hide
-    // toggleForm : 'dashboard/set_toggle_form',
-    // // Set editUser in State
-    // addUser : 'user/set_edit_user',
-    // // toggle Navigation Bar to Show & Hide
-    // toggleNavbar: 'dashboard/set_toggle_navbar'
-    // }),
+  methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])({
+    // toggle User dialog form to Show / Hide
+    toggleForm: 'payment/set_toggle_form',
+    // Set editUser in State
+    addUser: 'user/set_edit_user',
+    // toggle Navigation Bar to Show & Hide
+    toggleNavbar: 'dashboard/set_toggle_navbar'
+  }), {
     // When click Add User Button in Bottom
     addNewUser: function addNewUser() {
-      this.addUser();
       this.toggleForm();
     }
-  }
+  })
 });
 
 /***/ }),
@@ -39203,7 +39189,7 @@ var render = function() {
                             ),
                             [
                               _c("v-icon", { attrs: { large: "" } }, [
-                                _vm._v("account_balance")
+                                _vm._v("monetization_on")
                               ])
                             ],
                             1
@@ -39266,18 +39252,19 @@ var render = function() {
                             [
                               _c("v-text-field", {
                                 attrs: {
+                                  prefix: "Rs:",
                                   type: "text",
-                                  name: "name",
-                                  "prepend-icon": "account_balance",
-                                  label: "payment Name",
+                                  name: "amount",
+                                  "prepend-icon": "monetization_on",
+                                  label: "payment Amount",
                                   rules: _vm.rules.required
                                 },
                                 model: {
-                                  value: _vm.payment.name,
+                                  value: _vm.payment.amount,
                                   callback: function($$v) {
-                                    _vm.$set(_vm.payment, "name", $$v)
+                                    _vm.$set(_vm.payment, "amount", $$v)
                                   },
-                                  expression: "payment.name"
+                                  expression: "payment.amount"
                                 }
                               })
                             ],
@@ -39288,44 +39275,21 @@ var render = function() {
                             "v-flex",
                             { attrs: { xs12: "" } },
                             [
-                              _c("v-text-field", {
+                              _c("v-select", {
                                 attrs: {
-                                  type: "text",
-                                  name: "branch",
-                                  "prepend-icon": "domain",
-                                  label: "Branch",
+                                  "prepend-icon": "settings_input_antenna",
+                                  label: "Station",
+                                  items: _vm.allStations,
+                                  "item-text": "name",
+                                  "item-value": "id",
                                   rules: _vm.rules.required
                                 },
                                 model: {
-                                  value: _vm.payment.branch,
+                                  value: _vm.payment.station_id,
                                   callback: function($$v) {
-                                    _vm.$set(_vm.payment, "branch", $$v)
+                                    _vm.$set(_vm.payment, "station_id", $$v)
                                   },
-                                  expression: "payment.branch"
-                                }
-                              })
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "v-flex",
-                            { attrs: { xs12: "" } },
-                            [
-                              _c("v-text-field", {
-                                attrs: {
-                                  type: "tel",
-                                  name: "acc_number",
-                                  "prepend-icon": "subtitles",
-                                  label: "Acc: Number",
-                                  rules: _vm.rules.required
-                                },
-                                model: {
-                                  value: _vm.payment.acc_number,
-                                  callback: function($$v) {
-                                    _vm.$set(_vm.payment, "acc_number", $$v)
-                                  },
-                                  expression: "payment.acc_number"
+                                  expression: "payment.station_id"
                                 }
                               })
                             ],
@@ -39358,67 +39322,11 @@ var render = function() {
                                 "v-flex",
                                 { attrs: { xs12: "" } },
                                 [
-                                  _c("v-subheader", [
-                                    _vm._v("Other Information")
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("v-divider")
-                                ],
-                                1
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "v-flex",
-                                {
-                                  attrs: {
-                                    xs12: "",
-                                    "align-center": "",
-                                    "justify-space-between": ""
-                                  }
-                                },
-                                [
-                                  _c(
-                                    "v-flex",
-                                    { attrs: { xs12: "" } },
-                                    [
-                                      _c("v-text-field", {
-                                        attrs: {
-                                          name: "info01",
-                                          label: "Info01",
-                                          type: "text"
-                                        }
-                                      })
-                                    ],
-                                    1
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-flex",
-                                    { attrs: { xs12: "" } },
-                                    [
-                                      _c("v-text-field", {
-                                        attrs: {
-                                          name: "info02",
-                                          label: "info02",
-                                          type: "text"
-                                        }
-                                      })
-                                    ],
-                                    1
-                                  )
-                                ],
-                                1
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "v-flex",
-                                { attrs: { xs12: "" } },
-                                [
-                                  _c("v-text-field", {
+                                  _c("v-textarea", {
                                     attrs: {
-                                      type: "tel",
+                                      type: "text",
                                       "prepend-icon": "smartphone",
-                                      label: "info03"
+                                      label: "Description"
                                     }
                                   })
                                 ],
@@ -39544,11 +39452,12 @@ var render = function() {
                   "v-btn",
                   {
                     staticClass: "ml-5",
-                    attrs: { color: "primary", dark: "" }
+                    attrs: { color: "primary", dark: "" },
+                    on: { click: _vm.toggleForm }
                   },
                   [
                     _c("v-icon", { attrs: { medium: "" } }, [_vm._v("add")]),
-                    _vm._v("\n                New User\n            ")
+                    _vm._v("\n                New Payment\n            ")
                   ],
                   1
                 )
@@ -39580,27 +39489,19 @@ var render = function() {
                       _vm._v(_vm._s(props.item.id))
                     ]),
                     _vm._v(" "),
-                    _c("td", [_vm._v(" " + _vm._s(props.item.name))]),
+                    _c("td", [_vm._v(" Rs: " + _vm._s(props.item.amount))]),
                     _vm._v(" "),
                     _c("td", { staticClass: "text-xs-left" }, [
-                      _vm._v(" " + _vm._s(props.item.name))
+                      _vm._v(" " + _vm._s(props.item.station_id))
                     ]),
                     _vm._v(" "),
                     _c("td", { staticClass: "text-xs-left" }, [
-                      _vm._v(_vm._s(props.item.gender))
-                    ]),
-                    _vm._v(" "),
-                    _c("td", { staticClass: "text-xs-left" }, [
-                      _vm._v(_vm._s(props.item.name))
-                    ]),
-                    _vm._v(" "),
-                    _c("td", { staticClass: "text-xs-left" }, [
-                      _vm._v(_vm._s(props.item.name))
+                      _vm._v(_vm._s(props.item.created_at))
                     ]),
                     _vm._v(" "),
                     _c(
                       "td",
-                      { staticClass: "justify-center layout px-0" },
+                      { staticClass: "justify-center px-0" },
                       [
                         _c(
                           "v-tooltip",
@@ -39635,7 +39536,7 @@ var render = function() {
                                               },
                                               on
                                             ),
-                                            [_vm._v("person")]
+                                            [_vm._v("monetization_on")]
                                           )
                                         ],
                                         1
@@ -39649,8 +39550,15 @@ var render = function() {
                             )
                           },
                           [_vm._v(" "), _c("span", [_vm._v("View")])]
-                        ),
-                        _vm._v(" "),
+                        )
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "td",
+                      { staticClass: "justify-center px-0" },
+                      [
                         _c(
                           "v-tooltip",
                           {
@@ -39698,8 +39606,15 @@ var render = function() {
                             )
                           },
                           [_vm._v(" "), _c("span", [_vm._v("Edit")])]
-                        ),
-                        _vm._v(" "),
+                        )
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "td",
+                      { staticClass: "justify-center px-0" },
+                      [
                         _c(
                           "v-tooltip",
                           {
@@ -39844,43 +39759,9 @@ var render = function() {
               _vm._v(" "),
               _c("v-spacer"),
               _vm._v(" "),
-              _c(
-                "v-tooltip",
-                {
-                  attrs: { bottom: "" },
-                  scopedSlots: _vm._u([
-                    {
-                      key: "activator",
-                      fn: function(ref) {
-                        var on = ref.on
-                        return [
-                          _c(
-                            "v-btn",
-                            _vm._g(
-                              {
-                                attrs: {
-                                  icon: "",
-                                  large: "",
-                                  target: "_blank"
-                                },
-                                on: { click: _vm.clear }
-                              },
-                              on
-                            ),
-                            [
-                              _c("v-icon", { attrs: { large: "" } }, [
-                                _vm._v("account_balance")
-                              ])
-                            ],
-                            1
-                          )
-                        ]
-                      }
-                    }
-                  ])
-                },
-                [_vm._v(" "), _c("span", [_vm._v("Add New Station")])]
-              ),
+              _c("v-icon", { attrs: { large: "" } }, [
+                _vm._v("settings_input_antenna")
+              ]),
               _vm._v(" "),
               _c(
                 "v-btn",
@@ -39934,7 +39815,7 @@ var render = function() {
                                 attrs: {
                                   type: "text",
                                   name: "name",
-                                  "prepend-icon": "account_balance",
+                                  "prepend-icon": "settings_input_antenna",
                                   label: "Station Name",
                                   rules: _vm.rules.required
                                 },
@@ -39957,41 +39838,17 @@ var render = function() {
                               _c("v-text-field", {
                                 attrs: {
                                   type: "text",
-                                  name: "branch",
+                                  name: "address",
                                   "prepend-icon": "domain",
-                                  label: "Branch",
+                                  label: "Address",
                                   rules: _vm.rules.required
                                 },
                                 model: {
-                                  value: _vm.station.branch,
+                                  value: _vm.station.address,
                                   callback: function($$v) {
-                                    _vm.$set(_vm.station, "branch", $$v)
+                                    _vm.$set(_vm.station, "address", $$v)
                                   },
-                                  expression: "station.branch"
-                                }
-                              })
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
-                          _c(
-                            "v-flex",
-                            { attrs: { xs12: "" } },
-                            [
-                              _c("v-text-field", {
-                                attrs: {
-                                  type: "tel",
-                                  name: "acc_number",
-                                  "prepend-icon": "subtitles",
-                                  label: "Acc: Number",
-                                  rules: _vm.rules.required
-                                },
-                                model: {
-                                  value: _vm.station.acc_number,
-                                  callback: function($$v) {
-                                    _vm.$set(_vm.station, "acc_number", $$v)
-                                  },
-                                  expression: "station.acc_number"
+                                  expression: "station.address"
                                 }
                               })
                             ],
@@ -40024,67 +39881,11 @@ var render = function() {
                                 "v-flex",
                                 { attrs: { xs12: "" } },
                                 [
-                                  _c("v-subheader", [
-                                    _vm._v("Other Information")
-                                  ]),
-                                  _vm._v(" "),
-                                  _c("v-divider")
-                                ],
-                                1
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "v-flex",
-                                {
-                                  attrs: {
-                                    xs12: "",
-                                    "align-center": "",
-                                    "justify-space-between": ""
-                                  }
-                                },
-                                [
-                                  _c(
-                                    "v-flex",
-                                    { attrs: { xs12: "" } },
-                                    [
-                                      _c("v-text-field", {
-                                        attrs: {
-                                          name: "info01",
-                                          label: "Info01",
-                                          type: "text"
-                                        }
-                                      })
-                                    ],
-                                    1
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "v-flex",
-                                    { attrs: { xs12: "" } },
-                                    [
-                                      _c("v-text-field", {
-                                        attrs: {
-                                          name: "info02",
-                                          label: "info02",
-                                          type: "text"
-                                        }
-                                      })
-                                    ],
-                                    1
-                                  )
-                                ],
-                                1
-                              ),
-                              _vm._v(" "),
-                              _c(
-                                "v-flex",
-                                { attrs: { xs12: "" } },
-                                [
-                                  _c("v-text-field", {
+                                  _c("v-textarea", {
                                     attrs: {
-                                      type: "tel",
-                                      "prepend-icon": "smartphone",
-                                      label: "info03"
+                                      name: "desc",
+                                      label: "Description",
+                                      type: "text"
                                     }
                                   })
                                 ],
@@ -40210,11 +40011,12 @@ var render = function() {
                   "v-btn",
                   {
                     staticClass: "ml-5",
-                    attrs: { color: "primary", dark: "" }
+                    attrs: { color: "primary", dark: "" },
+                    on: { click: _vm.toggleForm }
                   },
                   [
                     _c("v-icon", { attrs: { medium: "" } }, [_vm._v("add")]),
-                    _vm._v("\n                New User\n            ")
+                    _vm._v("\n                New Station\n            ")
                   ],
                   1
                 )
@@ -40249,24 +40051,12 @@ var render = function() {
                     _c("td", [_vm._v(" " + _vm._s(props.item.name))]),
                     _vm._v(" "),
                     _c("td", { staticClass: "text-xs-left" }, [
-                      _vm._v(" " + _vm._s(props.item.name))
-                    ]),
-                    _vm._v(" "),
-                    _c("td", { staticClass: "text-xs-left" }, [
-                      _vm._v(_vm._s(props.item.gender))
-                    ]),
-                    _vm._v(" "),
-                    _c("td", { staticClass: "text-xs-left" }, [
-                      _vm._v(_vm._s(props.item.name))
-                    ]),
-                    _vm._v(" "),
-                    _c("td", { staticClass: "text-xs-left" }, [
-                      _vm._v(_vm._s(props.item.name))
+                      _vm._v(" " + _vm._s(props.item.address))
                     ]),
                     _vm._v(" "),
                     _c(
                       "td",
-                      { staticClass: "justify-center layout px-0" },
+                      { staticClass: "justify-center" },
                       [
                         _c(
                           "v-tooltip",
@@ -40301,7 +40091,7 @@ var render = function() {
                                               },
                                               on
                                             ),
-                                            [_vm._v("person")]
+                                            [_vm._v("settings_input_antenna")]
                                           )
                                         ],
                                         1
@@ -40315,8 +40105,15 @@ var render = function() {
                             )
                           },
                           [_vm._v(" "), _c("span", [_vm._v("View")])]
-                        ),
-                        _vm._v(" "),
+                        )
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "td",
+                      { staticClass: "justify-center" },
+                      [
                         _c(
                           "v-tooltip",
                           {
@@ -40364,8 +40161,15 @@ var render = function() {
                             )
                           },
                           [_vm._v(" "), _c("span", [_vm._v("Edit")])]
-                        ),
-                        _vm._v(" "),
+                        )
+                      ],
+                      1
+                    ),
+                    _vm._v(" "),
+                    _c(
+                      "td",
+                      { staticClass: "justify-center" },
+                      [
                         _c(
                           "v-tooltip",
                           {
@@ -82843,19 +82647,26 @@ __webpack_require__.r(__webpack_exports__);
 /*!*******************************************************************************!*\
   !*** ./resources/js/components/ControlPanel/Payments/PaymentStore/actions.js ***!
   \*******************************************************************************/
-/*! exports provided: set_payments, add_new_payment, set_edit_payment, update_payment, set_payment_details */
+/*! exports provided: set_toggle_form, set_payments, add_new_payment, set_edit_payment, update_payment, set_payment_details, delete_payments */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_toggle_form", function() { return set_toggle_form; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_payments", function() { return set_payments; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "add_new_payment", function() { return add_new_payment; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_edit_payment", function() { return set_edit_payment; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "update_payment", function() { return update_payment; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_payment_details", function() { return set_payment_details; });
-// get all payments in database
-var set_payments = function set_payments(_ref) {
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "delete_payments", function() { return delete_payments; });
+// set dialog value
+var set_toggle_form = function set_toggle_form(_ref) {
   var commit = _ref.commit;
+  return commit('set_toggle_form');
+}; // get all payments in database
+
+var set_payments = function set_payments(_ref2) {
+  var commit = _ref2.commit;
   return new Promise(function (resolve, reject) {
     axios.get('api/payments').then(function (response) {
       // http success, call the mutator and change something in state
@@ -82865,13 +82676,12 @@ var set_payments = function set_payments(_ref) {
       console.log(error.response); // http failed, let the calling function know that action did not work out
 
       reject(error);
-      console.log("kkk");
     });
   });
 }; // add new payment to the database
 
-var add_new_payment = function add_new_payment(_ref2, payment) {
-  var dispatch = _ref2.dispatch;
+var add_new_payment = function add_new_payment(_ref3, payment) {
+  var dispatch = _ref3.dispatch;
   return axios.post('api/payments', payment).then(function (response) {
     dispatch('set_message', {
       message: response.data.message,
@@ -82890,14 +82700,14 @@ var add_new_payment = function add_new_payment(_ref2, payment) {
   });
 }; // set edit payment array
 
-var set_edit_payment = function set_edit_payment(_ref3) {
-  var commit = _ref3.commit;
+var set_edit_payment = function set_edit_payment(_ref4) {
+  var commit = _ref4.commit;
   var payment = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   return commit('set_update_payment_to_form', payment);
 }; // update existing payment in database
 
-var update_payment = function update_payment(_ref4, payment) {
-  var dispatch = _ref4.dispatch;
+var update_payment = function update_payment(_ref5, payment) {
+  var dispatch = _ref5.dispatch;
   return new Promise(function (resolve, reject) {
     axios.post('api/payments/update', payment).then(function (response) {
       // http success, call the mutator and change something in state
@@ -82922,12 +82732,38 @@ var update_payment = function update_payment(_ref4, payment) {
   });
 }; // set payment details
 
-var set_payment_details = function set_payment_details(_ref5, id) {
-  var commit = _ref5.commit;
+var set_payment_details = function set_payment_details(_ref6, id) {
+  var commit = _ref6.commit;
   return new Promise(function (resolve, reject) {
     axios.get('api/payments/' + id).then(function (response) {
       // http success, call the mutator and change something in state
       commit('set_active_payment', response.data.payment);
+      resolve(response); // Let the calling function know that http is done. You may send some data back
+    }, function (error) {
+      // http failed, let the calling function know that action did not work out
+      dispatch('set_message', {
+        message: error.response.data.message,
+        type: 'error'
+      }, {
+        root: true
+      });
+      reject(error);
+    });
+  });
+}; // delete payment to the database
+
+var delete_payments = function delete_payments(_ref7, id) {
+  var dispatch = _ref7.dispatch;
+  return new Promise(function (resolve, reject) {
+    axios["delete"]("api/payments/".concat(id)).then(function (response) {
+      // http success, call the get all data and change something in payment
+      dispatch('set_payments');
+      dispatch('set_message', {
+        message: response.data.message,
+        type: 'success'
+      }, {
+        root: true
+      });
       resolve(response); // Let the calling function know that http is done. You may send some data back
     }, function (error) {
       // http failed, let the calling function know that action did not work out
@@ -82948,15 +82784,20 @@ var set_payment_details = function set_payment_details(_ref5, id) {
 /*!*******************************************************************************!*\
   !*** ./resources/js/components/ControlPanel/Payments/PaymentStore/getters.js ***!
   \*******************************************************************************/
-/*! exports provided: getAllPayments, getEditPayment */
+/*! exports provided: getPaymentForm, getAllPayments, getEditPayment */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getPaymentForm", function() { return getPaymentForm; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getAllPayments", function() { return getAllPayments; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getEditPayment", function() { return getEditPayment; });
 /* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./state */ "./resources/js/components/ControlPanel/Payments/PaymentStore/state.js");
- // get all payments array
+ // get dialog value
+
+var getPaymentForm = function getPaymentForm(state) {
+  return state.dialog;
+}; // get all payments array
 
 var getAllPayments = function getAllPayments(state) {
   return state.allPayments;
@@ -82999,15 +82840,19 @@ __webpack_require__.r(__webpack_exports__);
 /*!*********************************************************************************!*\
   !*** ./resources/js/components/ControlPanel/Payments/PaymentStore/mutations.js ***!
   \*********************************************************************************/
-/*! exports provided: set_all_payments, set_update_payment_to_form, set_active_payment */
+/*! exports provided: set_toggle_form, set_all_payments, set_update_payment_to_form, set_active_payment */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_toggle_form", function() { return set_toggle_form; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_all_payments", function() { return set_all_payments; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_update_payment_to_form", function() { return set_update_payment_to_form; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_active_payment", function() { return set_active_payment; });
-// set all payments to the allpayments Array
+var set_toggle_form = function set_toggle_form(state) {
+  return state.dialog = !state.dialog;
+}; // set all payments to the allpayments Array
+
 var set_all_payments = function set_all_payments(state, payments) {
   return state.allPayments = payments;
 }; // set update payment to form
@@ -83033,6 +82878,7 @@ var set_active_payment = function set_active_payment(state, payment) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
+  dialog: false,
   allPayments: [],
   editPayment: {},
   activePayment: {}
@@ -83251,19 +83097,26 @@ __webpack_require__.r(__webpack_exports__);
 /*!*******************************************************************************!*\
   !*** ./resources/js/components/ControlPanel/Stations/StationStore/actions.js ***!
   \*******************************************************************************/
-/*! exports provided: set_stations, add_new_station, set_edit_station, update_station, set_station_details */
+/*! exports provided: set_toggle_form, set_stations, add_new_station, set_edit_station, update_station, set_station_details, delete_stations */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_toggle_form", function() { return set_toggle_form; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_stations", function() { return set_stations; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "add_new_station", function() { return add_new_station; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_edit_station", function() { return set_edit_station; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "update_station", function() { return update_station; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_station_details", function() { return set_station_details; });
-// get all stations in database
-var set_stations = function set_stations(_ref) {
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "delete_stations", function() { return delete_stations; });
+// set dialog value
+var set_toggle_form = function set_toggle_form(_ref) {
   var commit = _ref.commit;
+  return commit('set_toggle_form');
+}; // get all stations in database
+
+var set_stations = function set_stations(_ref2) {
+  var commit = _ref2.commit;
   return new Promise(function (resolve, reject) {
     axios.get('api/stations').then(function (response) {
       // http success, call the mutator and change something in state
@@ -83277,8 +83130,8 @@ var set_stations = function set_stations(_ref) {
   });
 }; // add new station to the database
 
-var add_new_station = function add_new_station(_ref2, station) {
-  var dispatch = _ref2.dispatch;
+var add_new_station = function add_new_station(_ref3, station) {
+  var dispatch = _ref3.dispatch;
   return axios.post('api/stations', station).then(function (response) {
     dispatch('set_message', {
       message: response.data.message,
@@ -83297,14 +83150,14 @@ var add_new_station = function add_new_station(_ref2, station) {
   });
 }; // set edit station array
 
-var set_edit_station = function set_edit_station(_ref3) {
-  var commit = _ref3.commit;
+var set_edit_station = function set_edit_station(_ref4) {
+  var commit = _ref4.commit;
   var station = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   return commit('set_update_station_to_form', station);
 }; // update existing station in database
 
-var update_station = function update_station(_ref4, station) {
-  var dispatch = _ref4.dispatch;
+var update_station = function update_station(_ref5, station) {
+  var dispatch = _ref5.dispatch;
   return new Promise(function (resolve, reject) {
     axios.post('api/stations/update', station).then(function (response) {
       // http success, call the mutator and change something in state
@@ -83329,12 +83182,38 @@ var update_station = function update_station(_ref4, station) {
   });
 }; // set station details
 
-var set_station_details = function set_station_details(_ref5, id) {
-  var commit = _ref5.commit;
+var set_station_details = function set_station_details(_ref6, id) {
+  var commit = _ref6.commit;
   return new Promise(function (resolve, reject) {
     axios.get('api/stations/' + id).then(function (response) {
       // http success, call the mutator and change something in state
       commit('set_active_station', response.data.station);
+      resolve(response); // Let the calling function know that http is done. You may send some data back
+    }, function (error) {
+      // http failed, let the calling function know that action did not work out
+      dispatch('set_message', {
+        message: error.response.data.message,
+        type: 'error'
+      }, {
+        root: true
+      });
+      reject(error);
+    });
+  });
+}; // delete station to the database
+
+var delete_stations = function delete_stations(_ref7, id) {
+  var dispatch = _ref7.dispatch;
+  return new Promise(function (resolve, reject) {
+    axios["delete"]("api/stations/".concat(id)).then(function (response) {
+      // http success, call the get all data and change something in station
+      dispatch('set_stations');
+      dispatch('set_message', {
+        message: response.data.message,
+        type: 'success'
+      }, {
+        root: true
+      });
       resolve(response); // Let the calling function know that http is done. You may send some data back
     }, function (error) {
       // http failed, let the calling function know that action did not work out
@@ -83355,15 +83234,20 @@ var set_station_details = function set_station_details(_ref5, id) {
 /*!*******************************************************************************!*\
   !*** ./resources/js/components/ControlPanel/Stations/StationStore/getters.js ***!
   \*******************************************************************************/
-/*! exports provided: getAllStations, getEditStation */
+/*! exports provided: getStationForm, getAllStations, getEditStation */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getStationForm", function() { return getStationForm; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getAllStations", function() { return getAllStations; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getEditStation", function() { return getEditStation; });
 /* harmony import */ var _state__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./state */ "./resources/js/components/ControlPanel/Stations/StationStore/state.js");
- // get all Stations array
+ // get dialog value
+
+var getStationForm = function getStationForm(state) {
+  return state.dialog;
+}; // get all Stations array
 
 var getAllStations = function getAllStations(state) {
   return state.allStations;
@@ -83406,15 +83290,19 @@ __webpack_require__.r(__webpack_exports__);
 /*!*********************************************************************************!*\
   !*** ./resources/js/components/ControlPanel/Stations/StationStore/mutations.js ***!
   \*********************************************************************************/
-/*! exports provided: set_all_stations, set_update_station_to_form, set_active_station */
+/*! exports provided: set_toggle_form, set_all_stations, set_update_station_to_form, set_active_station */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_toggle_form", function() { return set_toggle_form; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_all_stations", function() { return set_all_stations; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_update_station_to_form", function() { return set_update_station_to_form; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "set_active_station", function() { return set_active_station; });
-// set all stations to the allstations Array
+var set_toggle_form = function set_toggle_form(state) {
+  return state.dialog = !state.dialog;
+}; // set all stations to the allstations Array
+
 var set_all_stations = function set_all_stations(state, stations) {
   return state.allStations = stations;
 }; // set update station to form
@@ -83440,6 +83328,7 @@ var set_active_station = function set_active_station(state, station) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
+  dialog: false,
   allStations: [],
   editStation: {},
   activeStation: {}
@@ -83806,7 +83695,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue_router__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-router */ "./node_modules/vue-router/dist/vue-router.esm.js");
 /* harmony import */ var _components_ControlPanel_DashBoard__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/ControlPanel/DashBoard */ "./resources/js/components/ControlPanel/DashBoard/index.vue");
 /* harmony import */ var _components_ControlPanel_Payments__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../components/ControlPanel/Payments */ "./resources/js/components/ControlPanel/Payments/index.vue");
-/* harmony import */ var _components_ControlPanel_Stations__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../components/ControlPanel/Stations */ "./resources/js/components/ControlPanel/Stations/index.vue");
+/* harmony import */ var _components_ControlPanel_Stations__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../components/ControlPanel/Stations */ "./resources/js/components/ControlPanel/Stations/index.vue");
 /* harmony import */ var _components_User__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../components/User */ "./resources/js/components/User/index.vue");
 
 
@@ -83823,7 +83712,7 @@ var routes = [{
   component: _components_User__WEBPACK_IMPORTED_MODULE_5__["default"]
 }, {
   path: '/stations',
-  component: _components_ControlPanel_Stations__WEBPACK_IMPORTED_MODULE_6__["default"]
+  component: _components_ControlPanel_Stations__WEBPACK_IMPORTED_MODULE_4__["default"]
 }, {
   path: '/payments',
   component: _components_ControlPanel_Payments__WEBPACK_IMPORTED_MODULE_3__["default"]

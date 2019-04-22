@@ -21,9 +21,9 @@
                   ></v-text-field>
                  
                  <template>
-                    <v-btn color="primary" dark class="ml-5" >
+                    <v-btn color="primary" dark class="ml-5" @click="toggleForm">
                       <v-icon medium>add</v-icon>
-                        New User
+                        New Station
                     </v-btn>
                 </template>
               </v-toolbar>
@@ -39,19 +39,18 @@
                   <template v-slot:items="props">
                     <td class="text-xs-left">{{ props.item.id }}</td>
                     <td> {{ props.item.name }}</td>
-                    <td class="text-xs-left"> {{ props.item.name }}</td>
-                    <td class="text-xs-left">{{ props.item.gender }}</td>
-                    <td class="text-xs-left">{{ props.item.name }}</td>
-                    <td class="text-xs-left">{{ props.item.name }}</td>
-                    <td class="justify-center layout px-0">
+                    <td class="text-xs-left"> {{ props.item.address }}</td>
+                    <td class="justify-center">
                       <v-tooltip bottom>
                           <template v-slot:activator="{ on }">
                               <v-btn icon @click="userView(props.item.id)">
-                                <v-icon large v-on="on" color="green">person</v-icon>
+                                <v-icon large v-on="on" color="green">settings_input_antenna</v-icon>
                             </v-btn>
                           </template>
                           <span>View</span>
                       </v-tooltip>
+                    </td>
+                    <td class="justify-center">
                       <v-tooltip bottom>
                           <template v-slot:activator="{ on }">
                               <v-btn icon @click="editItem(props.item)">
@@ -60,6 +59,8 @@
                           </template>
                           <span>Edit</span>
                       </v-tooltip>
+                    </td>
+                    <td class="justify-center">
                       <v-tooltip bottom>
                           <template v-slot:activator="{ on }">
                               <v-btn icon @click="deleteItem(props.item)">
@@ -94,12 +95,12 @@
                 //allUsers: [],
                 search: '',
                 headers: [
-                    { text: 'Ref.ID',width: '1%', value: 'id' },
+                    { text: 'ID',width: '1%', value: 'id' },
                     { text: 'Name', value: 'name'},
-                    { text: 'Mobile', value: 'mobile01' },
-                    { text: 'Email', value: 'email' },
-                    { text: 'NIC', value: 'nic' },
-                    { text: 'Actions', value: 'name', sortable: false },
+                    { text: 'Address', value: 'address' },
+                    { text: 'View',width: '1%', value: 'view', sortable: false },
+                    { text: 'Edit',width: '1%', value: 'edit', sortable: false },
+                    { text: 'Delete',width: '1%', value: 'delete', sortable: false },
                     // { text: 'Actions', value: 'name', sortable: false }
     
                 ]
@@ -112,7 +113,7 @@
             created(){
                 // when table is preview, load the all stations from database
               this.$store.dispatch("station/set_stations").then(response => {
-                console.log(response)
+                // console.log(response)
               }, error => {
                 // Get some error
                   console.error(error)
@@ -121,8 +122,24 @@
             methods:{
                 ...mapActions({
                     // addstation : 'station/add_new_station',
-                    
-                })
+                  // Toggle Dialog Form to Show/ Hide
+                  toggleForm : 'station/set_toggle_form',
+                  updateItem : 'station/set_edit_station',
+                }),
+                editItem(item){
+                  this.updateItem(item)
+                  this.toggleForm()
+
+                },
+                deleteItem(item){
+                  confirm('Are you sure you want to delete this item?')  &&
+                  this.$store.dispatch("station/delete_stations",item.id).then(response => {
+                      const index = this.allStations.indexOf(item)
+                      this.allStations.splice(index, 1)
+                  }, error => {
+
+                  }) 
+                }
             }
         }
     </script>

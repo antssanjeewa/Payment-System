@@ -80,8 +80,8 @@
             drawer:true,
             items: [
             { icon: 'dashboard', text: 'Dashboard', link:'/'},
-            { icon: 'person', text: 'Payment', link:'/payments' },   
-            { icon: 'folder', text: 'Stations', link:'/stations' },
+            { icon: 'monetization_on', text: 'Payment', link:'/payments' },   
+            { icon: 'settings_input_antenna', text: 'Stations', link:'/stations' },
             { icon: 'keyboard_arrow_up',
               'icon-alt': 'keyboard_arrow_down',
               text: 'Other',

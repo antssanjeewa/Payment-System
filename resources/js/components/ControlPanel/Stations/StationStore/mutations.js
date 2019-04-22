@@ -1,3 +1,7 @@
+export const set_toggle_form = (state) => {
+    return state.dialog = !state.dialog
+}
+
 // set all stations to the allstations Array
 export const set_all_stations = (state, stations) => {
     return state.allStations = stations

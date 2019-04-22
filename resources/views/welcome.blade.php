@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Kundasale</title>
+        <title>Transmition</title>
 
 
         <!-- Styles -->
@@ -78,7 +78,7 @@
             @endif
 
             <div class="content">
-               
+               Project 002
             </div>
         </div>
     </body>

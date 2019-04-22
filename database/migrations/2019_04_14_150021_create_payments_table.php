@@ -18,6 +18,9 @@ class CreatePaymentsTable extends Migration
             $table->string('amount');
             $table->unsignedBigInteger('station_id');
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->foreign('station_id')->references('id')->on('stations')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
