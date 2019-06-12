@@ -36,7 +36,7 @@ export const set_edit_station = ({commit}, station={}) => {
 // update existing station in database
 export const update_station = ({dispatch}, station) => {
     return new Promise((resolve, reject) => {
-        axios.post('api/stations/update',station).then(response => {
+        axios.put(`api/subscriptions/${station.id}`,station).then(response => {
             // http success, call the mutator and change something in state
             dispatch('set_stations')
             dispatch('set_message',{message:response.data.message, type:'success'},{root:true})

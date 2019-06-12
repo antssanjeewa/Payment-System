@@ -57,10 +57,10 @@ class PaymentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
         try{
-            $item = Payment::find($request->id);
+            $item = Payment::find($id);
             if(!$item){
                 return response()->json(['message'=>"Payment Not Found.."],404);
             }

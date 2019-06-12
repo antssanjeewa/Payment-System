@@ -17,8 +17,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('payments', 'PaymentController', ['except' => ['update']]);
-Route::post('payments/update','PaymentController@update');
+Route::namespace('API')->middleware('auth:api')->group(function () {
 
-Route::apiResource('stations', 'StationController', ['except' => ['update']]);
-Route::post('stations/update','StationController@update');
+    Route::apiResource('payments', 'PaymentController');
+    
+    Route::apiResource('stations', 'StationController');
+
+});

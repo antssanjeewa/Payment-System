@@ -82709,7 +82709,7 @@ var set_edit_payment = function set_edit_payment(_ref4) {
 var update_payment = function update_payment(_ref5, payment) {
   var dispatch = _ref5.dispatch;
   return new Promise(function (resolve, reject) {
-    axios.post('api/payments/update', payment).then(function (response) {
+    axios.put("api/subscriptions/".concat(payment.id), payment).then(function (response) {
       // http success, call the mutator and change something in state
       dispatch('set_payments');
       dispatch('set_message', {
@@ -83159,7 +83159,7 @@ var set_edit_station = function set_edit_station(_ref4) {
 var update_station = function update_station(_ref5, station) {
   var dispatch = _ref5.dispatch;
   return new Promise(function (resolve, reject) {
-    axios.post('api/stations/update', station).then(function (response) {
+    axios.put("api/subscriptions/".concat(station.id), station).then(function (response) {
       // http success, call the mutator and change something in state
       dispatch('set_stations');
       dispatch('set_message', {

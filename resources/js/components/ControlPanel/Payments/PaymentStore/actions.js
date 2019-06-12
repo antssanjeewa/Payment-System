@@ -36,7 +36,7 @@ export const set_edit_payment = ({commit}, payment={}) => {
 // update existing payment in database
 export const update_payment = ({dispatch}, payment) => {
     return new Promise((resolve, reject) => {
-        axios.post('api/payments/update',payment).then(response => {
+        axios.put(`api/subscriptions/${payment.id}`,payment).then(response => {
             // http success, call the mutator and change something in state
             dispatch('set_payments')
             dispatch('set_message',{message:response.data.message, type:'success'},{root:true})
